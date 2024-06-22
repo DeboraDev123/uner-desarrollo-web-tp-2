@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import handleCRUD from "../../utils/handleCrud";
-import FiltroBusqueda from "./FiltroBusqueda";
-import BuscadorAlojamiento from "./BuscadorAlojamiento";
+import React, { useState, useEffect } from 'react';
+import handleCRUD from '../../utils/handleCrud';
+import FiltroBusqueda from './FiltroBusqueda';
+import BuscadorAlojamiento from './BuscadorAlojamiento';
 import {
   crudAlojamientosEndpoints,
   crudImagenes,
-} from "../../dbEndpointsAlojamiento";
-import { crudTipoAlojamientosEndpoints } from "../../dbEndpoints";
-import "./PaginaBuscador.css";
+} from '../../dbEndpointsAlojamiento';
+import { crudTipoAlojamientosEndpoints } from '../../dbEndpoints';
+import './PaginaBuscador.css';
 
 const PaginaBuscador = ({
   titulo = undefined,
@@ -45,25 +45,24 @@ const PaginaBuscador = ({
   }, []);
 
   useEffect(() => {
-    if (cantidad > 0) {
+    if (alojamientosJoined.data.length > 0 && (cantidad > 0 || estado)) {
+      let filtrados = [...alojamientosJoined.data];
+
+      if (estado) {
+        filtrados = filtrados.filter((alojamiento) => {
+          return alojamiento.Estado === estado;
+        });
+      }
+      if (cantidad > 0) {
+        filtrados = filtrados.slice(0, cantidad);
+      }
+
       setAlojamientosFiltrados((prev) => {
         return {
           ...prev,
           done: true,
           loading: false,
-          data: alojamientosJoined.data.slice(0, cantidad),
-        };
-      });
-    }
-    if (estado) {
-      setAlojamientosFiltrados((prev) => {
-        return {
-          ...prev,
-          done: true,
-          loading: false,
-          data: alojamientosJoined.data.filter((alojamiento) => {
-            return alojamiento.Estado === estado;
-          }),
+          data: filtrados,
         };
       });
     }
@@ -92,17 +91,16 @@ const PaginaBuscador = ({
   }, [alojamientos, tipoAlojamientos, imagenes]);
 
   return (
-    <div className={mostrarFiltro ? "pagina-buscador" : ""}>
+    <div className={mostrarFiltro ? 'pagina-buscador' : ''}>
       {mostrarFiltro && (
-        <h2 className="titulo">Encontrá tu próximo alojamiento</h2>
-      )}
-
-      {mostrarFiltro && (
-        <FiltroBusqueda
-          tipoAlojamientos={tipoAlojamientos.data}
-          alojamientos={alojamientosJoined}
-          setAlojamientosFiltrados={setAlojamientosFiltrados}
-        ></FiltroBusqueda>
+        <>
+          <h2 className='titulo'>Encontrá tu próximo alojamiento</h2>
+          <FiltroBusqueda
+            tipoAlojamientos={tipoAlojamientos.data}
+            alojamientos={alojamientosJoined}
+            setAlojamientosFiltrados={setAlojamientosFiltrados}
+          ></FiltroBusqueda>
+        </>
       )}
 
       <BuscadorAlojamiento
