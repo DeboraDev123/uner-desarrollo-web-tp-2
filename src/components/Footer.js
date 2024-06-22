@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -25,11 +26,17 @@ const Footer = () => {
           </h3>
           <ul className="flex-column">
             <li>
-              <a href="acerca.html">Acerca de</a>
+            <Link to="/Acerca">Acerca</Link>
               <br />
             </li>
             <li>
-              <a href="contacto.html">Contacto</a>
+            <Link to="/Contacto">Contacto</Link>
+            </li>
+            <li>
+            <Link to="/Buscar">Buscar</Link>
+            </li>
+            <li>
+            <Link to="/Admin">Admin</Link>
             </li>
           </ul>
         </div>
