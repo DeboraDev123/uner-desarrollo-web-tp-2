@@ -90,6 +90,7 @@ a:hover {
   padding: 2rem;
   padding-top: var(--padding-helper-horiz);
   padding-bottom: var(--padding-helper-horiz);
+  min-height: 100vh;
 }
 picture {
   height: fit-content;

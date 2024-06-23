@@ -31,7 +31,7 @@ const LoadingIcon = () => {
     <div
       style={{
         position: 'absolute',
-        backgroundColor: ' var(--light-color)',
+        backgroundColor: ' transparent',
         top: 0,
         right: 0,
         width: '100%',
