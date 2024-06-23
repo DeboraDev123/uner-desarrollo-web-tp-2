@@ -1,27 +1,62 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom/cjs/react-router-dom.min';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import {
+  useHistory,
+  useLocation,
+} from 'react-router-dom/cjs/react-router-dom.min';
 import { handleLinkToEntityImages } from '../../../../utils/linkToEntities';
+import alojImgsRoute from '../../../../utils/publicImagesAlojRoutes';
+
+import { ImagenesContext } from '../ImagenesProvider';
+import ButtonsWrapper, {
+  AdminFormBtn,
+} from './../../admin_shared/ButtonsWrapper';
+import { imgsNew, imgsUpdate } from '../../admin_shared/btnActions';
 
 const ImagenForm = ({
   setErrors,
   setImagePreview,
   imagePreview,
-  handleSubmit,
+
   handleInputCapture,
   alojamientos,
-  errors,
 }) => {
   const location = useLocation();
   const [linkSelection, setLinkSelection] = useState(null);
 
   const ref = useRef(handleLinkToEntityImages(location.state || null));
-
+  const history = useHistory();
+  /* const handleImagePreview = () => {
+    if (location.state?.el) {
+      setImagePreview({ route: location.state.el.route });
+    }
+  }; */
+  const {
+    handleSubmit,
+    imagenesState: [, setImagenes = {}],
+  } = useContext(ImagenesContext);
+  const locationState = Boolean(location?.state)
+    ? location.state.el.route
+    : null;
+  const previewImgRef = useRef(imagePreview);
   useEffect(() => {
     setLinkSelection({
       options: ref.current.toSorted().toReversed(),
       selected: ref.current.toSorted().toReversed()[0],
     });
-  }, []);
+    if (locationState) {
+      // console.log('edit');
+      // setImagePreview({ route: locationState });
+      previewImgRef.current = { route: locationState };
+    }
+
+    return () => setImagePreview(previewImgRef.current);
+  }, [locationState, setImagePreview]);
 
   return (
     <div
@@ -30,15 +65,28 @@ const ImagenForm = ({
         boxShadow: 'var(--box-shadow)',
         padding: '1rem',
         borderRadius: '10px',
+        flexWrap: 'wrap',
       }}
     >
       <form
         onReset={() => {
           setErrors({ error: 'empty' });
-          setImagePreview(null);
+          setImagePreview({ route: 'broken-image.png' });
         }}
-        onSubmit={handleSubmit}
-        style={{ flexGrow: 1 }}
+        onSubmit={async function (e) {
+          // console.log('submit res');
+          await handleSubmit(e, setImagenes);
+
+          if (Boolean(location.state)) {
+            return history.push('/admin/imagenes');
+          }
+        }}
+        style={{ flex: '1 1' }}
+        data-action-type={location.state ? 'UPDATE' : 'ADD'}
+        data-id={location.state?.el?.id ?? null}
+        // data-route={
+        //   location.state ? `${crudImagenes.PUT}${id}` : crudImagenes.POST
+        // }
       >
         <h2> Imagenes </h2>
 
@@ -94,41 +142,31 @@ const ImagenForm = ({
             </select>
           </div>
         )}
-
-        <button
-          type='submit'
-          style={{
-            borderRadius: '20px',
-            padding: '10px 15px',
-            backgroundColor: `${
-              Boolean(Object.keys(errors).length === 0)
-                ? 'var(--primary-color)'
-                : 'gray'
-            }`,
-            boxShadow: 'var(--box-shadow)',
-            cursor: 'pointer',
-          }}
-          // disabled={String(Boolean(Object.keys(errors).length !== 0))}
-          disabled={!Boolean(Object.keys(errors).length === 0)}
-        >
-          enviar
-        </button>
-        <button className='btn btn-delete' type='reset'>
-          cancelar
-        </button>
+        <ButtonsWrapper>
+          {locationState
+            ? imgsUpdate.map(({ actionType, text, stylesClassName }) => (
+                <AdminFormBtn
+                  key={actionType}
+                  {...{ actionType, text, stylesClassName }}
+                ></AdminFormBtn>
+              ))
+            : imgsNew.map(({ actionType, text, stylesClassName, type }) => (
+                <AdminFormBtn
+                  key={actionType}
+                  {...{ actionType, text, stylesClassName, type }}
+                ></AdminFormBtn>
+              ))}
+        </ButtonsWrapper>
       </form>
-      <div style={{ flex: 1 }}>
+
+      <div>
         <img
           style={{
             maxWidth: '30vw',
-            boxShadow: 'var(--box-shadow)',
-            borderRadius: '10px',
+
+            borderRadius: 'var(--border-radius)',
           }}
-          src={
-            imagePreview?.route ||
-            location?.state?.el?.route ||
-            '/images/tipo_alojamientos_pics/broken-image.png'
-          }
+          src={`${alojImgsRoute}${imagePreview?.route}`}
           alt=''
         />
       </div>

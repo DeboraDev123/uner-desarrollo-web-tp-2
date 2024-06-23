@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import callApi from '../../../utils/callApi';
+import React, { useContext, useEffect, useState } from 'react';
+
 import { crudAlojamientosEndpoints, crudImagenes } from '../../../dbEndpoints';
 import handleCRUD from '../../../utils/handleCrud';
-import crudOperations from '../../../utils/crudOperations';
-import { Bounce, ToastContainer, toast } from 'react-toastify';
+
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import EntitiesList from './../EntitiesList';
@@ -12,57 +12,39 @@ import ImagenesLi from '../ImagenesLi';
 import ImagenForm from './imagenFormComponents/ImagenForm';
 import intialState from '../../../utils/initialState';
 import imgValidate from '../../../utils/imgValidate';
+import {
+  Route,
+  Switch,
+  useRouteMatch,
+} from 'react-router-dom/cjs/react-router-dom.min';
+import Imagen from './Imagen';
+import ImagenesProvider, {
+  ImagenesContext,
+  handleSubmit,
+} from './ImagenesProvider';
 
-const Imagenes = () => {
+export const Imagenes = () => {
   const [errors, setErrors] = useState({ error: 'empty' });
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState({
+    route: 'broken-image.png',
+  });
   const [alojamientos, setAlojamientos] = useState(intialState);
-  const [imagenes, setImagenes] = useState(intialState);
-
+  const { imagenesState } = useContext(ImagenesContext);
+  const [imagenes, setImagenes] = imagenesState;
   useEffect(() => {
+    setImagenes((prev) => ({ ...prev, update: false }));
     Promise.all([
       handleCRUD(crudAlojamientosEndpoints.readAll, undefined, setAlojamientos),
       handleCRUD(crudImagenes.readAll, undefined, setImagenes),
     ])
       .then((data) => {
+        console.log(data[0]);
         return data;
       })
 
       .catch((err) => notify(err.message || 'error cargando data'));
-  }, []);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!e.target.file) {
-      return;
-    }
-    const {
-      file: { name: RutaArchivo },
-      idAlojamiento,
-    } = Object.fromEntries(new FormData(e.target));
-    fetch(crudImagenes.POST, {
-      method: 'POST',
-
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-
-      body: JSON.stringify({ idAlojamiento, RutaArchivo }), // body data type must match "Content-Type" header
-    })
-      .then((res) => {
-        if (!res.ok) {
-          // console.log(res);
-          throw new Error(res.statusText);
-        }
-        return res.json();
-      })
-      .then((res) => notify(res.message, 'success'))
-      .catch((err) => {
-        notify(err.message || 'error cargando imagen');
-      });
-  };
+    console.log('render');
+  }, [imagenes.update]);
 
   const handleInputCapture = ({ target }) => {
     const [file] = target?.files;
@@ -73,9 +55,10 @@ const Imagenes = () => {
       notify('debe cargar archivos de tipo imagen');
       return;
     }
+    console.log(file.name);
     setImagePreview({
       type,
-      route: `/images/tipo_alojamientos_pics/${file.name}`,
+      route: `${file.name}`,
     });
     setErrors({});
   };
@@ -86,7 +69,7 @@ const Imagenes = () => {
           setErrors,
           setImagePreview,
           imagePreview,
-          handleSubmit,
+
           handleInputCapture,
           alojamientos,
           errors,
@@ -159,7 +142,7 @@ const Imagenes = () => {
         </form> */}
       {/* REFACTORED INTO COMPONENT */}
 
-      <EntitiesList list={imagenes.data}>
+      <EntitiesList list={imagenes}>
         <ul>
           {imagenes?.data.map((el) => {
             // console.log('img', el);
@@ -175,9 +158,27 @@ const Imagenes = () => {
           })}
         </ul>
       </EntitiesList>
-      <ToastContainer />
     </section>
   );
 };
 
-export default Imagenes;
+const ImagenesRoute = () => {
+  const { path } = useRouteMatch();
+  const [imagenes, setImagenes] = useState(intialState);
+  return (
+    <ImagenesContext.Provider
+      value={{ imagenesState: [imagenes, setImagenes], handleSubmit }}
+    >
+      <Switch>
+        <Route exact path={path}>
+          <Imagenes></Imagenes>
+        </Route>
+        <Route path={`${path}/:id`}>
+          <Imagen></Imagen>
+        </Route>
+      </Switch>
+      <ToastContainer />
+    </ImagenesContext.Provider>
+  );
+};
+export default ImagenesRoute;

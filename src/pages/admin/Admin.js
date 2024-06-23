@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  NavLink,
   Route,
   Switch,
   useRouteMatch,
@@ -10,42 +11,66 @@ import TipoAlojamientos from './TipoAlojamientos/TipoAlojamientos';
 import AdminDashboard from './AdminDashboard';
 import adminModule from './admin.module.css';
 import TipoAlojamiento from './TipoAlojamiento/TipoAlojamiento';
-import Imagenes from './imagenes_folder/Imagenes';
+
 import AlojamientosDashboard from './alojamientos/AlojamientosDashboard';
-import AlojamientoDashboard from './alojamiento/AlojamientoDashboard';
-import Imagen from './imagenes_folder/Imagen';
+import ImagenesRoute from './imagenes_folder/Imagenes';
+
+// import Imagen from './imagenes_folder/Imagen';
+import ServiciosDashboard from './servicios/ServiciosDashboard';
 
 const Admin = () => {
-  const { adminPanel, btnAdd } = adminModule;
-  let { url } = useRouteMatch();
+  const { adminPanel } = adminModule;
+  let { url, path } = useRouteMatch();
 
   return (
     <main className='main'>
-      <h1>Administracion</h1>
+      <h1 className='desktop-heading'>Administracion</h1>
+
       <section className={`${adminPanel}`}>
+        <details>
+          <summary>
+            <h1>administracion</h1>{' '}
+          </summary>
+          <div>
+            <ul>
+              <li>
+                <NavLink to={`${path}/alojamientos`}>alojamientos</NavLink>
+              </li>
+              <li>
+                <NavLink to={`${path}/tipo-alojamientos`}>
+                  tipo de alojamientos
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to={`${path}/imagenes`}>imagenes</NavLink>
+              </li>
+              <li>
+                <NavLink to={`${path}/servicios`}>servicios</NavLink>
+              </li>
+            </ul>
+          </div>
+        </details>{' '}
         <AdminDashboard></AdminDashboard>
       </section>
+
       <Switch>
         <Route exact path={`${url}/tipo-alojamientos`}>
-          <>
-            <TipoAlojamientos></TipoAlojamientos>
-          </>
+          <TipoAlojamientos></TipoAlojamientos>
         </Route>
 
         <Route path={`${url}/tipo-alojamientos/:id`}>
           <TipoAlojamiento></TipoAlojamiento>
         </Route>
-        <Route exact path={`${url}/alojamientos`}>
+        <Route path={`${url}/alojamientos`}>
           <AlojamientosDashboard></AlojamientosDashboard>
         </Route>
-        <Route path={`${url}/alojamientos/:id`}>
-          <AlojamientoDashboard></AlojamientoDashboard>
+
+        <Route path={`${path}/imagenes`}>
+          <ImagenesRoute></ImagenesRoute>
         </Route>
-        <Route exact path={`${url}/imagenes`}>
-          <Imagenes></Imagenes>
-        </Route>
-        <Route exact path={`${url}/imagenes/:id`}>
-          <Imagen></Imagen>
+
+        <Route path={`${path}/servicios`}>
+          <ServiciosDashboard></ServiciosDashboard>
         </Route>
       </Switch>
     </main>

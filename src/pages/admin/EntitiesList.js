@@ -9,15 +9,15 @@ const EntitiesList = ({ error, loading, list, children }) => {
   }, [list]);
 
   if (error) {
-    <LoadingIcon></LoadingIcon>;
-    // return <h1>Error</h1>;
+    // <LoadingIcon></LoadingIcon>;
+    return <h1>Error</h1>;
   }
   if (loading) {
     return <LoadingIcon></LoadingIcon>;
   }
   return (
     <>
-      <h2>Listado : Tipos de Alojamientos</h2>
+      {/* <h2>Listado : Tipos de Alojamientos</h2> */}
 
       {list && children}
     </>
