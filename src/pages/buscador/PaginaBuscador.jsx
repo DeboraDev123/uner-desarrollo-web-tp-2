@@ -45,26 +45,36 @@ const PaginaBuscador = ({
   }, []);
 
   useEffect(() => {
-    if (alojamientosJoined.data.length > 0 && (cantidad > 0 || estado)) {
-      let filtrados = [...alojamientosJoined.data];
+    if (alojamientosJoined.done) {
+      if (cantidad > 0 || estado) {
+        let filtrados = [...alojamientosJoined.data];
 
-      if (estado) {
-        filtrados = filtrados.filter((alojamiento) => {
-          return alojamiento.Estado === estado;
+        if (estado) {
+          filtrados = filtrados.filter((alojamiento) => {
+            return alojamiento.Estado === estado;
+          });
+        }
+        if (cantidad > 0) {
+          filtrados = filtrados.slice(0, cantidad);
+        }
+
+        setAlojamientosFiltrados((prev) => {
+          return {
+            ...prev,
+            done: true,
+            loading: false,
+            data: filtrados,
+          };
+        });
+      } else {
+        setAlojamientosFiltrados((prev) => {
+          return {
+            ...prev,
+            done: true,
+            loading: false,
+          };
         });
       }
-      if (cantidad > 0) {
-        filtrados = filtrados.slice(0, cantidad);
-      }
-
-      setAlojamientosFiltrados((prev) => {
-        return {
-          ...prev,
-          done: true,
-          loading: false,
-          data: filtrados,
-        };
-      });
     }
   }, [alojamientosJoined]);
 
@@ -73,6 +83,8 @@ const PaginaBuscador = ({
       setAlojamientosJoined((prev) => {
         return {
           ...prev,
+          loading: false,
+          done: true,
           data: alojamientos.data.map((alojamiento) => {
             return {
               ...alojamiento,
@@ -102,11 +114,15 @@ const PaginaBuscador = ({
           ></FiltroBusqueda>
         </>
       )}
-
-      <BuscadorAlojamiento
-        titulo={titulo}
-        alojamientos={alojamientosFiltrados}
-      ></BuscadorAlojamiento>
+      {mostrarFiltro ||
+      (!mostrarFiltro && alojamientosFiltrados.data.length > 0) ? (
+        <BuscadorAlojamiento
+          titulo={titulo}
+          alojamientos={alojamientosFiltrados}
+        ></BuscadorAlojamiento>
+      ) : (
+        ''
+      )}
     </div>
   );
 };
