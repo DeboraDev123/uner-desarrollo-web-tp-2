@@ -28,6 +28,7 @@ const HomeMain = () => {
           Buscar Alojamiento
         </button>
       </section>
+      <br />
       <section className='sobre-chapa'>
         <PaginaBuscador
           estado='Disponible'
