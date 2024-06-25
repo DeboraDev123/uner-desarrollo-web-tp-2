@@ -10,7 +10,7 @@
 - Leandro Andres Angeli
 - Debora Ibáñez 
 - Nahir Orellana Lopez
-- 
+
 Para instalar dependencias
 **npm install**
   
