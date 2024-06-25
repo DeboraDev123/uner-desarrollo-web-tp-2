@@ -1,7 +1,7 @@
 ## Tecnicatura Universitaria en Desarrollo Web
 ### Facultad de Ciencias de la Administración - UNER
 
-##Entrega :  Trabajo Integrador
+## Entrega :  Trabajo Integrador
 
 
 #### Integrantes 
